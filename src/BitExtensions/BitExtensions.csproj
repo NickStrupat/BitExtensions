@@ -3,14 +3,29 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>NickStrupat</RootNamespace>
-    <Version>1.0.0-beta1</Version>
+    <Version>0.0.1-prerelease</Version>
     <Authors>NickStrupat</Authors>
     <Company />
     <Product />
+    <PackageProjectUrl>https://github.com/NickStrupat/BitExtensions</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/NickStrupat/BitExtensions</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>bit bits bit-manipulation bit-extensions bit-mask bt bts btc bit-test bit-set bit-clear bit-compliment</PackageTags>
+    <Description>Branchless bit manipulation on `Byte` and `Span&lt;Byte&gt;`</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>NickStrupat.BitExtensions</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
