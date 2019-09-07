@@ -1,2 +1,2 @@
 # BitExtensions
-Branchless bit manipulation on `Byte` and `Span&lt;Byte&gt;`
+Branchless bit manipulation on `Byte` and `Span<Byte>`
