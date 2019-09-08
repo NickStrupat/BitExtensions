@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Xunit;
 
-namespace NickStrupat.BitExtensions.Tests
+namespace NickStrupat.BitExtensions_Tests
 {
 	public class WriteBitTests
 	{
@@ -61,6 +62,16 @@ namespace NickStrupat.BitExtensions.Tests
 				writeBitState();
 				Assert.Equal(expectedBitState, bytes.AsSpan().GetBit(index));
 			}
+		}
+		[Theory]
+		[InlineData(0b0001_1100, 0b0000_0000, 0b111, 3, 2)]
+		[InlineData(0b1111_1111, 0b1111_1111, 0b000, 3, 2)]
+		public static void WriteBits(Byte expected, Byte initial, Byte bitsToWrite, Byte bitsToWriteCount, Byte offset)
+		{
+			Span<Byte> bytes = stackalloc Byte[1];
+			bytes[0] = initial;
+			bytes.WriteBits(bitsToWrite, bitsToWriteCount, 2);
+			Assert.Equal(expected, bytes[0]);
 		}
 	}
 }

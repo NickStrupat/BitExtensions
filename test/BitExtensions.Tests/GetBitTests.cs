@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-namespace NickStrupat.BitExtensions.Tests
+namespace NickStrupat.BitExtensions_Tests
 {
 	public class GetBitTests
 	{
