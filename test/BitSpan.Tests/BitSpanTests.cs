@@ -6,7 +6,7 @@ using Xunit;
 
 namespace NickStrupat.BitSpan_Tests
 {
-	public class BitSpan_Tests
+	public class BitSpanTests
 	{
 		[Theory]
 		[InlineData(8, 0, 1)]
@@ -51,9 +51,10 @@ namespace NickStrupat.BitSpan_Tests
 			bitSpan = default;
 			Assert.True(bitSpan.IsEmpty);
 
-			Span<Byte> bytes = stackalloc Byte[1];
-			var bitSpan2 = new BitSpan(bytes, 0);
-			Assert.True(bitSpan2.IsEmpty);
+			Assert.Throws<ArgumentException>(() => {
+				Span<Byte> bytes = stackalloc Byte[1];
+				var bitSpan2 = new BitSpan(bytes, 0);
+			});
 		}
 
 		[Fact]
@@ -70,7 +71,6 @@ namespace NickStrupat.BitSpan_Tests
 		[InlineData(2)]
 		[InlineData(12)]
 		[InlineData(31)]
-		[InlineData(32)]
 		public void ToString_(Byte bitOffset)
 		{
 			Span<Byte> bytes = stackalloc Byte[] { 0b0000_0001, 0b0000_0000, 0b0000_0000, 0b0100_0000 };
@@ -79,6 +79,22 @@ namespace NickStrupat.BitSpan_Tests
 			var bitSpan = new BitSpan(bytes, bitOffset);
 			var actual = bitSpan.ToString();
 			Assert.Equal(expected, actual);
+		}
+
+		[Theory]
+		[InlineData(32)]
+		[InlineData(33)]
+		[InlineData(Byte.MaxValue)]
+		public void ToStringThrows(Byte bitOffset)
+		{
+			Assert.Throws<ArgumentOutOfRangeException>(() => {
+				Span<Byte> bytes = stackalloc Byte[] { 0b0000_0001, 0b0000_0000, 0b0000_0000, 0b0100_0000 };
+				var integer = MemoryMarshal.Read<UInt32>(bytes);
+				var expected = Convert.ToString(integer, 2).PadRight(32, '0').Substring(bitOffset);
+				var bitSpan = new BitSpan(bytes, bitOffset);
+				var actual = bitSpan.ToString();
+				Assert.Equal(expected, actual);
+			});
 		}
 
 		[Fact]

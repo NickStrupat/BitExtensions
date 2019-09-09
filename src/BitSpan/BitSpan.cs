@@ -8,48 +8,33 @@ namespace NickStrupat
 	public readonly ref struct BitSpan
 	{
 		readonly Span<Byte> bytes;
+		readonly Byte start;
 		readonly Int32 length;
-		readonly Byte bitOffset;
 
 		public BitSpan(Span<Byte> bytes)
 		{
 			this.bytes = bytes;
-			this.length = this.bytes.Length << 3;
-			this.bitOffset = 0;
+			start = 0;
+			length = bytes.Length << 3;
 		}
 
-		public BitSpan(Span<Byte> bytes, Byte bitOffset)
+		public BitSpan(Span<Byte> bytes, Int32 start)
 		{
-			this.bytes = bytes;
-			this.length = this.bytes.Length << 3;
-			this.bitOffset = CheckBitOffset(this.length, bitOffset);
+			this.bytes = bytes.Slice(start >> 3);
+			this.start = (Byte)(start & 0b111);
+			length = this.bytes.Length << 3;
 		}
 
-		public BitSpan(Span<Byte> bytes, Int32 length)
+		public BitSpan(Span<Byte> bytes, Int32 start, Int32 length)
 		{
-			this.bytes = bytes;
-			this.length = CheckLength(bytes, length);
-			this.bitOffset = 0;
+			this.bytes = bytes.Slice(start >> 3, length << 3);
+			this.start = (Byte)(start & 0b111);
+			this.length = length << 3;
 		}
-
-		public BitSpan(Span<Byte> bytes, Int32 length, Byte bitOffset)
-		{
-			this.bytes = bytes;
-			this.length = CheckLength(bytes, length);
-			this.bitOffset = CheckBitOffset(this.length, bitOffset);
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static Int32 CheckLength(Span<Byte> bytes, Int32 length) =>
-			length > 0 & length <= bytes.Length << 3 ? length : throw new ArgumentException();
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private static Byte CheckBitOffset(Int32 length, Byte bitOffset) =>
-			bitOffset < length ? bitOffset : throw new ArgumentOutOfRangeException(nameof(bitOffset));
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private Int32 CheckIndex(Int32 index) =>
-			bitOffset + index < length ? bitOffset + index : throw new ArgumentOutOfRangeException(nameof(index));
+			start + index < length ? start + index : throw new ArgumentOutOfRangeException(nameof(index));
 
 		public Byte this[Int32 index]
 		{
@@ -59,14 +44,14 @@ namespace NickStrupat
 
 		public static Boolean operator ==(BitSpan left, BitSpan right) =>
 			left.length == right.length &
-			left.bitOffset == right.bitOffset &&
+			left.start == right.start &&
 			left.bytes == right.bytes;
 		public static Boolean operator !=(BitSpan left, BitSpan right) => !(left == right);
 
 		public static BitSpan Empty => default;
-		public Boolean IsEmpty => length - bitOffset == 0 | bytes.IsEmpty;
+		public Boolean IsEmpty => length - start == 0 | bytes.IsEmpty;
 
-		public Int32 Length => (bytes.Length << 3) - bitOffset;
+		public Int32 Length => length - start;
 
 		public override String ToString()
 		{
@@ -78,9 +63,10 @@ namespace NickStrupat
 
 		public void Clear()
 		{
-			if (bitOffset > 0b111)
-				bytes.Slice(bitOffset >> 3).Clear();
-			bytes[0] |= (Byte)(0b1111_1111 << bitOffset);
+			if (length >> 3 != 0)
+			if (start > 0b111)
+				bytes.Slice(start >> 3).Clear();
+			bytes[0] |= (Byte)(0b1111_1111 << start);
 		}
 
 		[EditorBrowsable(EditorBrowsableState.Never)]
