@@ -48,5 +48,14 @@ namespace NickStrupat
 			bitState <<= shift;
 			@byte = (Byte)((@byte & ~mask) | bitState);
 		}
+
+		public static void WriteBits(this Span<Byte> bytes, Int32 bytesBitOffset, Byte bitsToWrite, Byte bitsToWriteCount)
+		{
+			var mask = (Byte)(bitsToWrite << bytesBitOffset);
+			var s = Convert.ToString(mask, 2);
+			var s1 = Convert.ToString(bytes[0], 2);
+			bytes[0] = (Byte)(bytes[0] & ~mask & mask);
+			var s2 = Convert.ToString(bytes[0], 2);
+		}
 	}
 }

@@ -1,10 +1,12 @@
 using System;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using Xunit;
 
 namespace NickStrupat.BitSpan_Tests
 {
-	public class UnitTest1
+	public class BitSpan_Tests
 	{
 		[Theory]
 		[InlineData(8, 0, 1)]
@@ -62,15 +64,21 @@ namespace NickStrupat.BitSpan_Tests
 			Assert.True(bitSpan.IsEmpty);
 		}
 
-		[Fact]
-		public void Test1()
+		[Theory]
+		[InlineData(0)]
+		[InlineData(1)]
+		[InlineData(2)]
+		[InlineData(12)]
+		[InlineData(31)]
+		[InlineData(32)]
+		public void ToString_(Byte bitOffset)
 		{
-			const Int32 bytesCount = 4;
-			Span<Byte> bytes = stackalloc Byte[bytesCount];
-			var bitSpan = new BitSpan(bytes, 0);
-			var sb = new StringBuilder(bitSpan.Length);
-			foreach (var bit in bitSpan)
-				sb.Append(bit == 0 ? '0' : '1');
+			Span<Byte> bytes = stackalloc Byte[] { 0b0000_0001, 0b0000_0000, 0b0000_0000, 0b0100_0000 };
+			var integer = MemoryMarshal.Read<UInt32>(bytes);
+			var expected = Convert.ToString(integer, 2).PadRight(32, '0').Substring(bitOffset);
+			var bitSpan = new BitSpan(bytes, bitOffset);
+			var actual = bitSpan.ToString();
+			Assert.Equal(expected, actual);
 		}
 
 		[Fact]
