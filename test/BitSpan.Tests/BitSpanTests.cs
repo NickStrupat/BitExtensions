@@ -102,5 +102,24 @@ namespace NickStrupat.BitSpan_Tests
 
 		[Fact]
 		public void GetHashCodeThrows() => Assert.Throws<NotSupportedException>(() => BitSpan.Empty.GetHashCode());
+
+		[Theory]
+		[InlineData(null, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0, 0, 0 })]
+		[InlineData(0, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0, 0, 0 })]
+		[InlineData(1, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b0000_0001, 0, 0 })]
+		[InlineData(2, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b0000_0011, 0, 0 })]
+		[InlineData(3, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b0000_0111, 0, 0 })]
+		[InlineData(4, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b0000_1111, 0, 0 })]
+		[InlineData(5, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b0001_1111, 0, 0 })]
+		[InlineData(6, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b0011_1111, 0, 0 })]
+		[InlineData(7, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b0111_1111, 0, 0 })]
+		[InlineData(8, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b1111_1111, 0, 0 })]
+		[InlineData(9, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b1111_1111, 0b0000_00001, 0 })]
+		public void Clear(Int32? start, Int32? length, Byte[] bytes, Byte[] expected)
+		{
+			var bitSpan = new BitSpan(bytes, start.GetValueOrDefault(), length.GetValueOrDefault(bytes.Length * 8));
+			bitSpan.Clear();
+			Assert.Equal(expected, bytes);
+		}
 	}
 }

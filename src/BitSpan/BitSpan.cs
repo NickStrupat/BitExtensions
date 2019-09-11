@@ -27,9 +27,12 @@ namespace NickStrupat
 
 		public BitSpan(Span<Byte> bytes, Int32 start, Int32 length)
 		{
-			this.bytes = bytes.Slice(start >> 3, length << 3);
-			this.start = (Byte)(start & 0b111);
-			this.length = length << 3;
+			var startBytes = start >> 3;
+			var lengthBytes = (length >> 3) - startBytes;
+			this.bytes = bytes.Slice(startBytes, lengthBytes);
+			var startBits = (Byte)(start & 0b111);
+			this.start = startBits;
+			this.length = (lengthBytes << 3) + (length & 0b111) - startBits;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -63,11 +66,19 @@ namespace NickStrupat
 
 		public void Clear()
 		{
-			if (length >> 3 != 0)
-			if (start > 0b111)
-				bytes.Slice(start >> 3).Clear();
-			bytes[0] |= (Byte)(0b1111_1111 << start);
+			var hasBitOffset = start != 0;
+			var hasBitLength = length != (bytes.Length << 3) - start;
+			if (hasBitOffset)
+				bytes[0] &= (Byte)((1 << start) - 1);
+			var sliceStart = Unsafe.As<Boolean, Byte>(ref hasBitOffset);
+			var sliceLength = Unsafe.As<Boolean, Byte>(ref hasBitLength);
+			var lastLength = length >> 3;
+			bytes.Slice(sliceStart, lastLength - sliceLength).Clear();
+			if (hasBitLength)
+				bytes[bytes.Length - 1] &= (Byte)~((1 << lastLength) - 1);
 		}
+
+		public void Fill(Boolean value) => throw null;
 
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		[Obsolete("Equals() on BitSpan will always throw an exception. Use == instead.")]
