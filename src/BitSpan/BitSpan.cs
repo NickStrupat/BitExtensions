@@ -78,7 +78,27 @@ namespace NickStrupat
 				bytes[bytes.Length - 1] &= (Byte)~((1 << lastLength) - 1);
 		}
 
-		public void Fill(Boolean value) => throw null;
+		public void Set()
+		{
+			var hasBitOffset = start != 0;
+			var hasBitLength = length != (bytes.Length << 3) - start;
+			if (hasBitOffset)
+				bytes[0] |= (Byte)~((1 << start) - 1);
+			var sliceStart = Unsafe.As<Boolean, Byte>(ref hasBitOffset);
+			var sliceLength = Unsafe.As<Boolean, Byte>(ref hasBitLength);
+			var lastLength = length >> 3;
+			bytes.Slice(sliceStart, lastLength - sliceLength).Fill(Byte.MaxValue);
+			if (hasBitLength)
+				bytes[bytes.Length - 1] |= (Byte)((1 << lastLength) - 1);
+		}
+
+		public void Fill(Boolean value)
+		{
+			if (value)
+				Set();
+			else
+				Clear();
+		}
 
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		[Obsolete("Equals() on BitSpan will always throw an exception. Use == instead.")]
