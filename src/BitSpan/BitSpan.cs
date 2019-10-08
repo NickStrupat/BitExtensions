@@ -7,29 +7,29 @@ namespace NickStrupat
 {
 	public readonly ref struct BitSpan
 	{
-		readonly Span<Byte> bytes;
-		readonly Byte start;
-		readonly Int32 length;
+		public readonly Span<Byte> Bytes;
+		private readonly Byte start;
+		private readonly Int32 length;
 
 		public BitSpan(Span<Byte> bytes)
 		{
-			this.bytes = bytes;
+			Bytes = bytes;
 			start = 0;
 			length = bytes.Length << 3;
 		}
 
 		public BitSpan(Span<Byte> bytes, Int32 start)
 		{
-			this.bytes = bytes.Slice(start >> 3);
+			Bytes = bytes.Slice(start >> 3);
 			this.start = (Byte)(start & 0b111);
-			length = this.bytes.Length << 3;
+			length = Bytes.Length << 3;
 		}
 
 		public BitSpan(Span<Byte> bytes, Int32 start, Int32 length)
 		{
 			var startBytes = start >> 3;
 			var lengthBytes = (length >> 3) - startBytes;
-			this.bytes = bytes.Slice(startBytes, lengthBytes);
+			Bytes = bytes.Slice(startBytes, lengthBytes);
 			var startBits = (Byte)(start & 0b111);
 			this.start = startBits;
 			this.length = (lengthBytes << 3) + (length & 0b111) - startBits;
@@ -41,18 +41,21 @@ namespace NickStrupat
 
 		public Byte this[Int32 index]
 		{
-			get => bytes.GetBit(CheckIndex(index));
-			set => bytes.WriteBit(CheckIndex(index), value);
+			get => Bytes.GetBit(CheckIndex(index));
+			set => Bytes.WriteBit(CheckIndex(index), value);
 		}
 
-		public static Boolean operator ==(BitSpan left, BitSpan right) =>
-			left.length == right.length &
-			left.start == right.start &&
-			left.bytes == right.bytes;
+		public static Boolean operator ==(BitSpan left, BitSpan right)
+		{
+			if ((left.Length == left.Bytes.Length << 3) & (right.Length == right.Bytes.Length << 3))
+				return left.Bytes == right.Bytes;
+			
+			return false;
+		}
 		public static Boolean operator !=(BitSpan left, BitSpan right) => !(left == right);
 
 		public static BitSpan Empty => default;
-		public Boolean IsEmpty => length - start == 0 | bytes.IsEmpty;
+		public Boolean IsEmpty => length - start == 0 | Bytes.IsEmpty;
 
 		public Int32 Length => length - start;
 
@@ -60,36 +63,36 @@ namespace NickStrupat
 		{
 			var sb = new StringBuilder(Length);
 			foreach (var bit in this)
-				sb.Append(bit == 0 ? '0' : '1');
+				sb.Append((Char)(bit + '0'));
 			return sb.ToString();
 		}
 
 		public void Clear()
 		{
 			var hasBitOffset = start != 0;
-			var hasBitLength = length != (bytes.Length << 3) - start;
+			var hasBitLength = length != (Bytes.Length << 3) - start;
 			if (hasBitOffset)
-				bytes[0] &= (Byte)((1 << start) - 1);
+				Bytes[0] &= (Byte)((1 << start) - 1);
 			var sliceStart = Unsafe.As<Boolean, Byte>(ref hasBitOffset);
 			var sliceLength = Unsafe.As<Boolean, Byte>(ref hasBitLength);
 			var lastLength = length >> 3;
-			bytes.Slice(sliceStart, lastLength - sliceLength).Clear();
+			Bytes.Slice(sliceStart, lastLength - sliceLength).Clear();
 			if (hasBitLength)
-				bytes[bytes.Length - 1] &= (Byte)~((1 << lastLength) - 1);
+				Bytes[Bytes.Length - 1] &= (Byte)~((1 << lastLength) - 1);
 		}
 
 		public void Set()
 		{
 			var hasBitOffset = start != 0;
-			var hasBitLength = length != (bytes.Length << 3) - start;
+			var hasBitLength = length != (Bytes.Length << 3) - start;
 			if (hasBitOffset)
-				bytes[0] |= (Byte)~((1 << start) - 1);
+				Bytes[0] |= (Byte)~((1 << start) - 1);
 			var sliceStart = Unsafe.As<Boolean, Byte>(ref hasBitOffset);
 			var sliceLength = Unsafe.As<Boolean, Byte>(ref hasBitLength);
 			var lastLength = length >> 3;
-			bytes.Slice(sliceStart, lastLength - sliceLength).Fill(Byte.MaxValue);
+			Bytes.Slice(sliceStart, lastLength - sliceLength).Fill(Byte.MaxValue);
 			if (hasBitLength)
-				bytes[bytes.Length - 1] |= (Byte)((1 << lastLength) - 1);
+				Bytes[Bytes.Length - 1] |= (Byte)((1 << lastLength) - 1);
 		}
 
 		public void Fill(Boolean value)

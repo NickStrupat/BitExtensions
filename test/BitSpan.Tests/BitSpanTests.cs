@@ -125,6 +125,27 @@ namespace NickStrupat.BitSpan_Tests
 		}
 
 		[Theory]
+		[InlineData(null, null, new Byte[] { 0 }      , new Byte[] { 0b1111_1111 }                          )]
+		[InlineData(null, null, new Byte[] { 0, 0 }   , new Byte[] { 0b1111_1111, 0b1111_1111 }             )]
+		[InlineData(null, null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(0   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(1   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_1110, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(2   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_1100, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(3   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_1000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(4   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_0000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(5   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1110_0000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(6   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1100_0000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(7   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1000_0000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(8   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b0000_0000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(9   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b0000_0000, 0b1111_1110, 0b1111_1111 })]
+		public void Set(Int32? start, Int32? length, Byte[] bytes, Byte[] expected)
+		{
+			var bitSpan = new BitSpan(bytes, start.GetValueOrDefault(), length.GetValueOrDefault(bytes.Length * 8));
+			bitSpan.Set();
+			Assert.Equal(expected, bytes);
+		}
+
+		[Theory]
 		[InlineData(false, null, null, new Byte[] { 0b1111_1111 }                          , new Byte[] { 0 }                           )]
 		[InlineData(false, null, null, new Byte[] { 0b1111_1111, 0b1111_1111 }             , new Byte[] { 0, 0 }                        )]
 		[InlineData(false, null, null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0, 0, 0 }                     )]
@@ -137,20 +158,20 @@ namespace NickStrupat.BitSpan_Tests
 		[InlineData(false, 6   , null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b0011_1111, 0, 0 }           )]
 		[InlineData(false, 7   , null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b0111_1111, 0, 0 }           )]
 		[InlineData(false, 8   , null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b1111_1111, 0, 0 }           )]
-		[InlineData(false, 9   , null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b1111_1111, 0b0000_00001, 0 })]
-		[InlineData(true , null, null, new Byte[] { 0 }                           , new Byte[] { 0b1111_1111 }                          )]
-		[InlineData(true , null, null, new Byte[] { 0, 0 }                        , new Byte[] { 0b1111_1111, 0b1111_1111 }             )]
-		[InlineData(true , null, null, new Byte[] { 0, 0, 0 }                     , new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
-		[InlineData(true , 0   , null, new Byte[] { 0, 0, 0 }                     , new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
-		[InlineData(true , 1   , null, new Byte[] { 0b0000_0001, 0, 0 }           , new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
-		[InlineData(true , 2   , null, new Byte[] { 0b0000_0011, 0, 0 }           , new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
-		[InlineData(true , 3   , null, new Byte[] { 0b0000_0111, 0, 0 }           , new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
-		[InlineData(true , 4   , null, new Byte[] { 0b0000_1111, 0, 0 }           , new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
-		[InlineData(true , 5   , null, new Byte[] { 0b0001_1111, 0, 0 }           , new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
-		[InlineData(true , 6   , null, new Byte[] { 0b0011_1111, 0, 0 }           , new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
-		[InlineData(true , 7   , null, new Byte[] { 0b0111_1111, 0, 0 }           , new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
-		[InlineData(true , 8   , null, new Byte[] { 0b1111_1111, 0, 0 }           , new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
-		[InlineData(true , 9   , null, new Byte[] { 0b1111_1111, 0b0000_00001, 0 }, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(false, 9   , null, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 }, new Byte[] { 0b1111_1111, 0b0000_0001, 0 })]
+		[InlineData(true , null, null, new Byte[] { 0 }      , new Byte[] { 0b1111_1111 }                          )]
+		[InlineData(true , null, null, new Byte[] { 0, 0 }   , new Byte[] { 0b1111_1111, 0b1111_1111 }             )]
+		[InlineData(true , null, null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(true , 0   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_1111, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(true , 1   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_1110, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(true , 2   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_1100, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(true , 3   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_1000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(true , 4   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1111_0000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(true , 5   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1110_0000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(true , 6   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1100_0000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(true , 7   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b1000_0000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(true , 8   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b0000_0000, 0b1111_1111, 0b1111_1111 })]
+		[InlineData(true , 9   , null, new Byte[] { 0, 0, 0 }, new Byte[] { 0b0000_0000, 0b1111_1110, 0b1111_1111 })]
 		public void Fill(Boolean value, Int32? start, Int32? length, Byte[] bytes, Byte[] expected)
 		{
 			var bitSpan = new BitSpan(bytes, start.GetValueOrDefault(), length.GetValueOrDefault(bytes.Length * 8));
