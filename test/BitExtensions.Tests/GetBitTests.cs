@@ -14,22 +14,30 @@ namespace NickStrupat.BitExtensions_Tests
 		[InlineData(0b1, 5)]
 		[InlineData(0b0, 6)]
 		[InlineData(0b1, 7)]
-		[InlineData(0b0, 8)]
-		[InlineData(0b0, 9)]
-		[InlineData(0b0, 10)]
-		[InlineData(0b0, 11)]
-		[InlineData(0b0, 12)]
-		[InlineData(0b0, 13)]
-		[InlineData(0b0, 14)]
-		[InlineData(0b0, 64)]
-		[InlineData(0b0, 127)]
-		[InlineData(0b0, 128)]
-		[InlineData(0b0, Byte.MaxValue)]
-		public void GetBit(Byte expected, Byte index)
+		public void GetBit_ValidIndex(Byte expected, Byte index)
 		{
-			Byte @byte = 0b1011_0100;
+			const Byte @byte = 0b1011_0100;
 			var bitState = @byte.GetBit(index);
 			Assert.Equal(expected, bitState);
+		}
+		
+		[Theory]
+
+		[InlineData(8)]
+		[InlineData(9)]
+		[InlineData(10)]
+		[InlineData(11)]
+		[InlineData(12)]
+		[InlineData(13)]
+		[InlineData(14)]
+		[InlineData(64)]
+		[InlineData(127)]
+		[InlineData(128)]
+		[InlineData(Byte.MaxValue)]
+		public void GetBit_InvalidIndex(Byte index)
+		{
+			const Byte @byte = 0b1011_0100;
+			Assert.Throws<IndexOutOfRangeException>(() => @byte.GetBit(index));
 		}
 
 		[Theory]
@@ -40,18 +48,22 @@ namespace NickStrupat.BitExtensions_Tests
 		[InlineData(0, 4)]
 		[InlineData(1, 30)]
 		[InlineData(0, 31)]
-		[InlineData(0, 32)]
-		[InlineData(0, 123)]
-		[InlineData(0, Int32.MaxValue)]
-		[InlineData(0, Int32.MinValue)]
-		public void GetBitOnSpan(Byte expectedBitState, Int32 index)
+		public void GetBitOnSpan_ValidIndex(Byte expectedBitState, Int32 index)
 		{
 			var bytes = new Byte[] { 0b0000_0001, 0b0000_0000, 0b0000_0000, 0b0100_0000 };
-			Byte getBitState() => bytes.AsSpan().GetBit(index);
-			if (index < 0 | index >=  bytes.Length * 8)
-				Assert.Throws<IndexOutOfRangeException>(() => getBitState());
-			else
-				Assert.Equal(expectedBitState, getBitState());
+			var bitState = bytes.AsSpan().GetBit(index);
+			Assert.Equal(expectedBitState, bitState);
+		}
+
+		[Theory]
+		[InlineData(32)]
+		[InlineData(123)]
+		[InlineData(Int32.MaxValue)]
+		[InlineData(Int32.MinValue)]
+		public void GetBitOnSpan_InvalidIndex(Int32 index)
+		{
+			var bytes = new Byte[4];
+			Assert.Throws<IndexOutOfRangeException>(() => bytes.AsSpan().GetBit(index));
 		}
 	}
 }

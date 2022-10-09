@@ -18,6 +18,8 @@ namespace NickStrupat.BitSpan_Tests
 		[InlineData(13, 3, 2)]
 		[InlineData(16, 0, 2)]
 		[InlineData(30, 2, 4)]
+		[InlineData(0, 8, 1)]
+		[InlineData(0, 16, 2)]
 		public void Length(Int32 expectedBitLength, Byte bitOffset, Int32 bytesCount)
 		{
 			Span<Byte> bytes = stackalloc Byte[bytesCount];
@@ -26,10 +28,8 @@ namespace NickStrupat.BitSpan_Tests
 		}
 
 		[Theory]
-		[InlineData(8, 1)]
 		[InlineData(9, 1)]
 		[InlineData(16, 1)]
-		[InlineData(16, 2)]
 		public void LengthThrows(Byte bitOffset, Int32 bytesCount)
 		{
 			Assert.Throws<ArgumentOutOfRangeException>(() => {
@@ -42,19 +42,19 @@ namespace NickStrupat.BitSpan_Tests
 		[Fact]
 		public void IsEmpty()
 		{
-			var bitSpan = BitSpan.Empty;
-			Assert.True(bitSpan.IsEmpty);
+			Assert.True(BitSpan.Empty.IsEmpty);
 
-			bitSpan = new BitSpan();
-			Assert.True(bitSpan.IsEmpty);
+			Assert.True(new BitSpan().IsEmpty);
 
-			bitSpan = default;
-			Assert.True(bitSpan.IsEmpty);
+			Assert.True(default(BitSpan).IsEmpty);
 
-			Assert.Throws<ArgumentException>(() => {
-				Span<Byte> bytes = stackalloc Byte[1];
-				var bitSpan2 = new BitSpan(bytes, 0);
-			});
+			Assert.True(new BitSpan(stackalloc Byte[0], 0).IsEmpty);
+			
+			Assert.False(new BitSpan(stackalloc Byte[1], 0).IsEmpty);
+			
+			Assert.True(new BitSpan(stackalloc Byte[1], 8).IsEmpty);
+			
+			Assert.False(new BitSpan(stackalloc Byte[1], 7).IsEmpty);
 		}
 
 		[Fact]

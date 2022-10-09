@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
     <RootNamespace>NickStrupat</RootNamespace>
     <Version>0.0.1-prerelease</Version>
     <Authors>NickStrupat</Authors>
@@ -15,6 +16,7 @@
     <Description>Branchless bit manipulation on `Byte` and `Span&lt;Byte&gt;`</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>NickStrupat.BitExtensions</PackageId>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -16,15 +16,6 @@ namespace NickStrupat.BitExtensions_Tests
 		[InlineData(0, 0b0100_0000, 0b1, 6)]
 		[InlineData(0, 0b1000_0000, 0b1, 7)]
 
-		[InlineData(0, 0, 0b1, 8)]
-		[InlineData(0, 0, 0b1, 9)]
-		[InlineData(0, 0, 0b1, 10)]
-		[InlineData(0, 0, 0b1, 11)]
-		[InlineData(0, 0, 0b1, 12)]
-		[InlineData(0, 0, 0b1, 13)]
-		[InlineData(0, 0, 0b1, 14)]
-		[InlineData(0, 0, 0b1, 15)]
-
 		[InlineData(0b1111_1111, 0b1111_1110, 0b0, 0)]
 		[InlineData(0b1111_1111, 0b1111_1101, 0b0, 1)]
 		[InlineData(0b1111_1111, 0b1111_1011, 0b0, 2)]
@@ -33,10 +24,24 @@ namespace NickStrupat.BitExtensions_Tests
 		[InlineData(0b1111_1111, 0b1101_1111, 0b0, 5)]
 		[InlineData(0b1111_1111, 0b1011_1111, 0b0, 6)]
 		[InlineData(0b1111_1111, 0b0111_1111, 0b0, 7)]
-		public void WriteBit(Byte initial, Byte expected, Byte bitState, Byte index)
+		public void WriteBit_ValidIndex(Byte initial, Byte expected, Byte bitState, Byte index)
 		{
 			initial.WriteBit(index, bitState);
 			Assert.Equal(expected, initial);
+		}
+		
+		[Theory]
+		[InlineData(0, 0b1, 8)]
+		[InlineData(0, 0b1, 9)]
+		[InlineData(0, 0b1, 10)]
+		[InlineData(0, 0b1, 11)]
+		[InlineData(0, 0b1, 12)]
+		[InlineData(0, 0b1, 13)]
+		[InlineData(0, 0b1, 14)]
+		[InlineData(0, 0b1, 15)]
+		public void WriteBit_InvalidIndex(Byte initial, Byte bitState, Byte index)
+		{
+			Assert.Throws<IndexOutOfRangeException>(() => initial.WriteBit(index, bitState));
 		}
 
 		[Theory]
@@ -63,15 +68,32 @@ namespace NickStrupat.BitExtensions_Tests
 				Assert.Equal(expectedBitState, bytes.AsSpan().GetBit(index));
 			}
 		}
+		
 		[Theory]
 		[InlineData(0b0001_1100, 0b0000_0000, 0b111, 3, 2)]
-		[InlineData(0b1111_1111, 0b1111_1111, 0b000, 3, 2)]
-		public static void WriteBits(Byte expected, Byte initial, Byte bitsToWrite, Byte bitsToWriteCount, Byte offset)
+		[InlineData(0b0001_1100, 0b1110_0011, 0b0001_1100, 8, 0)]
+		[InlineData(0b1110_0011, 0b1111_1111, 0b000, 3, 2)]
+		[InlineData(0b1110_1011, 0b1111_1111, 0b010, 3, 2)]
+		[InlineData(0b1111_0101, 0b1111_1111, 0b010, 3, 1)]
+		public static void WriteBits(Byte expected, Byte initial, Byte bits, Byte bitCount, Byte offset)
 		{
 			Span<Byte> bytes = stackalloc Byte[1];
 			bytes[0] = initial;
-			bytes.WriteBits(bitsToWrite, bitsToWriteCount, 2);
+			bytes.WriteBits(offset, bits, bitCount);
 			Assert.Equal(expected, bytes[0]);
 		}
+		
+		// [Theory]
+		// [InlineData(0b0001_1100, 0b0000_0000, 0b111, 3, 2)]
+		// [InlineData(0b1110_0011, 0b1111_1111, 0b000, 3, 2)]
+		// [InlineData(0b1110_1011, 0b1111_1111, 0b010, 3, 2)]
+		// [InlineData(0b1111_0101, 0b1111_1111, 0b010, 3, 1)]
+		// public static void WriteBits_AcrossBytes(Byte expected, UInt16 initial, Byte bits, Byte bitCount, Byte offset)
+		// {
+		// 	Span<Byte> bytes = stackalloc Byte[1];
+		// 	bytes[0] = initial;
+		// 	bytes.WriteBits(offset, bits, bitCount);
+		// 	Assert.Equal(expected, bytes[0]);
+		// }
 	}
 }
